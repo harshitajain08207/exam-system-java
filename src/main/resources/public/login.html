@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Secure Online Exam System - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 320px;
+        }
+        h2 { text-align: center; color: #333; }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #45a049; }
+        .toggle { text-align: center; margin-top: 10px; color: #4CAF50; cursor: pointer; }
+        #message { text-align: center; margin-top: 10px; color: red; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2 id="formTitle">Login</h2>
+
+    <div id="signupFields" style="display:none;">
+        <input type="text" id="name" placeholder="Full Name">
+        <select id="role">
+            <option value="STUDENT">Student</option>
+            <option value="TEACHER">Teacher</option>
+        </select>
+    </div>
+
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="submitForm()">Login</button>
+
+    <div class="toggle" onclick="toggleForm()">Don't have an account? Sign up</div>
+    <div id="message"></div>
+</div>
+
+<script>
+    let isSignup = false;
+
+    function toggleForm() {
+        isSignup = !isSignup;
+        document.getElementById('formTitle').innerText = isSignup ? 'Sign Up' : 'Login';
+        document.getElementById('signupFields').style.display = isSignup ? 'block' : 'none';
+        document.querySelector('button').innerText = isSignup ? 'Sign Up' : 'Login';
+        document.querySelector('.toggle').innerText = isSignup ? 'Already have an account? Login' : "Don't have an account? Sign up";
+        document.getElementById('message').innerText = '';
+    }
+
+    function submitForm() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (isSignup) {
+            const name = document.getElementById('name').value;
+            const role = document.getElementById('role').value;
+
+            fetch('/api/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&role=${role}`
+            })
+            .then(res => res.text())
+            .then(text => {
+                document.getElementById('message').innerText = text;
+                if (text.includes('successful')) toggleForm();
+            });
+        } else {
+            fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+            })
+            .then(res => res.text())
+            .then(text => {
+                document.getElementById('message').innerText = text;
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
