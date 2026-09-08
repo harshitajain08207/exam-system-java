@@ -14,6 +14,7 @@ public class App {
         app.post("/api/addQuestion", App::handleAddQuestion);
         app.get("/api/viewQuestions/{examId}", App::handleViewQuestions);
         app.post("/api/submitExam", App::handleSubmitExam);
+        app.get("/api/getResults/{examId}", App::handleGetResults);
 
         System.out.println("Server running at http://localhost:7000");
     }
@@ -60,13 +61,13 @@ public class App {
 
     static void handleViewQuestions(Context ctx) {
         int examId = Integer.parseInt(ctx.pathParam("examId"));
-        StudentService.viewQuestions(examId);
-        ctx.result("Questions printed in server console for now");
+        ctx.json(StudentService.getQuestionsForExam(examId));
     }
 
     static void handleSubmitExam(Context ctx) {
         int userId = Integer.parseInt(ctx.formParam("userId"));
         int examId = Integer.parseInt(ctx.formParam("examId"));
+        int tabSwitchCount = Integer.parseInt(ctx.formParam("tabSwitchCount"));
         java.util.Map<Integer, String> answers = new java.util.HashMap<>();
         String answersRaw = ctx.formParam("answers");
         if (answersRaw != null && !answersRaw.isEmpty()) {
@@ -76,7 +77,12 @@ public class App {
                 answers.put(Integer.parseInt(kv[0]), kv[1]);
             }
         }
-        int score = StudentService.submitExam(userId, examId, answers);
+        int score = StudentService.submitExam(userId, examId, answers, tabSwitchCount);
         ctx.result(String.valueOf(score));
+    }
+
+    static void handleGetResults(Context ctx) {
+        int examId = Integer.parseInt(ctx.pathParam("examId"));
+        ctx.json(ExamService.getResultsForExam(examId));
     }
 }

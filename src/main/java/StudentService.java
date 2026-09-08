@@ -1,13 +1,15 @@
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class StudentService {
 
-    // Shows all questions for a given exam
-    public static void viewQuestions(int examId) {
+    public static List<Map<String, Object>> getQuestionsForExam(int examId) {
+        List<Map<String, Object>> questions = new ArrayList<>();
         String sql = "SELECT id, question_text, option_a, option_b, option_c, option_d FROM Questions WHERE exam_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
@@ -17,20 +19,29 @@ public class StudentService {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                System.out.println("\nQ" + rs.getInt("id") + ": " + rs.getString("question_text"));
-                System.out.println("A) " + rs.getString("option_a"));
-                System.out.println("B) " + rs.getString("option_b"));
-                System.out.println("C) " + rs.getString("option_c"));
-                System.out.println("D) " + rs.getString("option_d"));
+                Map<String, Object> q = new HashMap<>();
+                q.put("id", rs.getInt("id"));
+                q.put("questionText", rs.getString("question_text"));
+                q.put("optionA", rs.getString("option_a"));
+                q.put("optionB", rs.getString("option_b"));
+                q.put("optionC", rs.getString("option_c"));
+                q.put("optionD", rs.getString("option_d"));
+                questions.add(q);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return questions;
     }
 
-    // Takes the student's answers (questionId -> chosen option like "A"), grades them, saves the result
-    public static int submitExam(int userId, int examId, Map<Integer, String> answers) {
+    public static void viewQuestions(int examId) {
+        for (Map<String, Object> q : getQuestionsForExam(examId)) {
+            System.out.println(q);
+        }
+    }
+
+    public static int submitExam(int userId, int examId, Map<Integer, String> answers, int tabSwitchCount) {
         int score = 0;
         String sql = "SELECT id, correct_option FROM Questions WHERE exam_id = ?";
 
@@ -50,35 +61,18 @@ public class StudentService {
                 }
             }
 
-            // Save the result
-            String insertSql = "INSERT INTO Results (user_id, exam_id, score) VALUES (?, ?, ?)";
+            String insertSql = "INSERT INTO Results (user_id, exam_id, score, tab_switch_count) VALUES (?, ?, ?, ?)";
             try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
                 insertStmt.setInt(1, userId);
                 insertStmt.setInt(2, examId);
                 insertStmt.setInt(3, score);
+                insertStmt.setInt(4, tabSwitchCount);
                 insertStmt.executeUpdate();
             }
-
-            System.out.println("Exam submitted! Score: " + score);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         return score;
-    }
-
-    // Quick test
-    public static void main(String[] args) {
-        int examId = 1;
-
-        System.out.println("Viewing questions for exam " + examId + ":");
-        viewQuestions(examId);
-
-        // Simulate a student answering: Q1 = A (correct), Q2 = A (wrong, correct was B)
-        Map<Integer, String> studentAnswers = new HashMap<>();
-        studentAnswers.put(1, "A");
-        studentAnswers.put(2, "A");
-
-        submitExam(1, examId, studentAnswers);
     }
 }

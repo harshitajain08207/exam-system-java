@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Exam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f5fa;
+            margin: 0;
+            padding: 30px 20px;
+        }
+        .container { max-width: 640px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: white; font-weight: 600;
+        }
+        h2 { color: #1a1a2e; margin: 0; font-weight: 600; font-size: 20px; }
+        .subtitle { color: #888; font-size: 12px; margin-top: 2px; }
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px 14px;
+            margin: 6px 0;
+            border-radius: 8px;
+            border: 1.5px solid #e5e5e5;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+        }
+        input:focus { outline: none; border-color: #764ba2; }
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            padding: 13px;
+        }
+        button:hover { opacity: 0.9; }
+        .logout {
+            background: white;
+            color: #e53e3e;
+            border: 1.5px solid #fed7d7;
+            width: auto;
+            padding: 9px 18px;
+            font-size: 13px;
+            margin: 0;
+        }
+        .logout:hover { background: #fff5f5; opacity: 1; }
+        .question-block {
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .question-block:last-child { border-bottom: none; }
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1a1a2e;
+            font-size: 14px;
+        }
+        .option-row {
+            margin: 6px 0;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1.5px solid #eee;
+        }
+        .option-row label { cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 10px; } .option-row input[type="radio"] { width: auto; flex-shrink: 0; margin: 0; }
+        #resultBox {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #38a169;
+        }
+        #integrityNote {
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+            margin-top: 8px;
+        }
+        #examIdInput { margin-bottom: 10px; }
+        .warning-banner {
+            background: #fff5f5;
+            color: #e53e3e;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="header-left">
+            <div class="header-icon">S</div>
+            <div>
+                <h2>Student Exam</h2>
+                <div class="subtitle" id="welcomeMsg"></div>
+            </div>
+        </div>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="card" id="loadCard">
+        <input type="number" id="examIdInput" placeholder="Enter Exam ID (ask your teacher)">
+        <button onclick="loadExam()">Load Exam</button>
+    </div>
+
+    <div class="card" id="examCard" style="display:none;">
+        <div class="warning-banner" id="warningBanner">You switched tabs during this exam. This has been noted.</div>
+        <div id="questionsContainer"></div>
+        <button onclick="submitExam()">Submit Exam</button>
+    </div>
+
+    <div class="card" id="resultCard" style="display:none;">
+        <div id="resultBox"></div>
+        <div id="integrityNote"></div>
+    </div>
+</div>
+
+<script>
+    const userId = localStorage.getItem('userId');
+    const role = localStorage.getItem('role');
+    const name = localStorage.getItem('name');
+    let currentExamId = null;
+    let allQuestions = [];
+    let tabSwitchCount = 0;
+    let examInProgress = false;
+
+    if (!userId || role !== 'STUDENT') {
+        window.location.href = '/login.html';
+    } else {
+        document.getElementById('welcomeMsg').innerText = 'Welcome, ' + name;
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && examInProgress) {
+            tabSwitchCount++;
+            document.getElementById('warningBanner').style.display = 'block';
+        }
+    });
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = '/login.html';
+    }
+
+    function loadExam() {
+        const examId = document.getElementById('examIdInput').value;
+        if (!examId) return;
+
+        fetch('/api/viewQuestions/' + examId)
+            .then(res => res.json())
+            .then(questions => {
+                if (questions.length === 0) {
+                    alert('No questions found for this exam ID.');
+                    return;
+                }
+                currentExamId = examId;
+                allQuestions = questions;
+                tabSwitchCount = 0;
+                examInProgress = true;
+                renderQuestions(questions);
+                document.getElementById('loadCard').style.display = 'none';
+                document.getElementById('examCard').style.display = 'block';
+            });
+    }
+
+    function renderQuestions(questions) {
+        const container = document.getElementById('questionsContainer');
+        container.innerHTML = '';
+
+        questions.forEach((q, index) => {
+            const block = document.createElement('div');
+            block.className = 'question-block';
+
+            block.innerHTML = `
+                <div class="question-text">${index + 1}. ${q.questionText}</div>
+                <div class="option-row"><label><input type="radio" name="q${q.id}" value="A"> A) ${q.optionA}</label></div>
+                <div class="option-row"><label><input type="radio" name="q${q.id}" value="B"> B) ${q.optionB}</label></div>
+                <div class="option-row"><label><input type="radio" name="q${q.id}" value="C"> C) ${q.optionC}</label></div>
+                <div class="option-row"><label><input type="radio" name="q${q.id}" value="D"> D) ${q.optionD}</label></div>
+            `;
+            container.appendChild(block);
+        });
+    }
+
+    function submitExam() {
+        examInProgress = false;
+        const answerPairs = [];
+
+        allQuestions.forEach(q => {
+            const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+            if (selected) {
+                answerPairs.push(q.id + ':' + selected.value);
+            }
+        });
+
+        const answersString = answerPairs.join(',');
+
+        fetch('/api/submitExam', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `userId=${userId}&examId=${currentExamId}&answers=${encodeURIComponent(answersString)}&tabSwitchCount=${tabSwitchCount}`
+        })
+        .then(res => res.text())
+        .then(score => {
+            document.getElementById('examCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'block';
+            document.getElementById('resultBox').innerText =
+                `Exam submitted! Your score: ${score} / ${allQuestions.length}`;
+
+            const note = document.getElementById('integrityNote');
+            if (tabSwitchCount > 0) {
+                note.innerText = `Note: ${tabSwitchCount} tab switch(es) detected during this attempt.`;
+            } else {
+                note.innerText = 'No tab switches detected during this attempt.';
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
+
