@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h2 { color: #333; }
+        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input, textarea, select, button { width: 100%; padding: 10px; margin: 6px 0; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; }
+        button { background: #4CAF50; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #45a049; }
+        .logout { background: #d9534f; width: auto; padding: 8px 16px; }
+        .logout:hover { background: #c9302c; }
+        #examMsg, #questionMsg { text-align: center; margin-top: 8px; font-weight: bold; }
+        .success { color: #4CAF50; }
+        .error { color: #d9534f; }
+        .options-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        #questionSection { display: none; }
+        .exam-id-badge { background: #e8f5e9; color: #2e7d32; padding: 8px; border-radius: 5px; text-align: center; margin-bottom: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Teacher Dashboard</h2>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="card">
+        <h3>Create New Exam</h3>
+        <input type="text" id="examTitle" placeholder="Exam Title (e.g. Java Basics Test)">
+        <input type="number" id="examDuration" placeholder="Duration (minutes)">
+        <button onclick="createExam()">Create Exam</button>
+        <div id="examMsg"></div>
+    </div>
+
+    <div class="card" id="questionSection">
+        <h3>Add Question</h3>
+        <div class="exam-id-badge" id="currentExamBadge"></div>
+        <textarea id="questionText" placeholder="Question text" rows="2"></textarea>
+        <div class="options-row">
+            <input type="text" id="optionA" placeholder="Option A">
+            <input type="text" id="optionB" placeholder="Option B">
+            <input type="text" id="optionC" placeholder="Option C">
+            <input type="text" id="optionD" placeholder="Option D">
+        </div>
+        <select id="correctOption">
+            <option value="A">Correct Answer: A</option>
+            <option value="B">Correct Answer: B</option>
+            <option value="C">Correct Answer: C</option>
+            <option value="D">Correct Answer: D</option>
+        </select>
+        <button onclick="addQuestion()">Add Question</button>
+        <div id="questionMsg"></div>
+    </div>
+</div>
+
+<script>
+    let currentExamId = null;
+    const teacherId = localStorage.getItem('userId');
+    const role = localStorage.getItem('role');
+
+    if (!teacherId || role !== 'TEACHER') {
+        window.location.href = '/login.html';
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = '/login.html';
+    }
+
+    function createExam() {
+        const title = document.getElementById('examTitle').value;
+        const duration = document.getElementById('examDuration').value;
+        const msg = document.getElementById('examMsg');
+
+        if (!title || !duration) {
+            msg.className = 'error';
+            msg.innerText = 'Please fill in both fields.';
+            return;
+        }
+
+        fetch('/api/createExam', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `title=${encodeURIComponent(title)}&duration=${duration}&teacherId=${teacherId}`
+        })
+        .then(res => res.text())
+        .then(examId => {
+            currentExamId = examId;
+            msg.className = 'success';
+            msg.innerText = 'Exam created! ID: ' + examId;
+            document.getElementById('questionSection').style.display = 'block';
+            document.getElementById('currentExamBadge').innerText = 'Adding questions to: ' + title + ' (Exam ID: ' + examId + ')';
+        });
+    }
+
+    function addQuestion() {
+        const questionText = document.getElementById('questionText').value;
+        const optionA = document.getElementById('optionA').value;
+        const optionB = document.getElementById('optionB').value;
+        const optionC = document.getElementById('optionC').value;
+        const optionD = document.getElementById('optionD').value;
+        const correctOption = document.getElementById('correctOption').value;
+        const msg = document.getElementById('questionMsg');
+
+        if (!questionText || !optionA || !optionB || !optionC || !optionD) {
+            msg.className = 'error';
+            msg.innerText = 'Please fill in all fields.';
+            return;
+        }
+
+        fetch('/api/addQuestion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `examId=${currentExamId}&questionText=${encodeURIComponent(questionText)}&optionA=${encodeURIComponent(optionA)}&optionB=${encodeURIComponent(optionB)}&optionC=${encodeURIComponent(optionC)}&optionD=${encodeURIComponent(optionD)}&correctOption=${correctOption}`
+        })
+        .then(res => res.text())
+        .then(text => {
+            msg.className = text.includes('added') ? 'success' : 'error';
+            msg.innerText = text;
+            if (text.includes('added')) {
+                document.getElementById('questionText').value = '';
+                document.getElementById('optionA').value = '';
+                document.getElementById('optionB').value = '';
+                document.getElementById('optionC').value = '';
+                document.getElementById('optionD').value = '';
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -37,7 +37,9 @@
         }
         button:hover { background: #45a049; }
         .toggle { text-align: center; margin-top: 10px; color: #4CAF50; cursor: pointer; }
-        #message { text-align: center; margin-top: 10px; color: red; }
+        #message { text-align: center; margin-top: 10px; }
+        .error { color: #d9534f; }
+        .success { color: #4CAF50; }
     </style>
 </head>
 <body>
@@ -76,6 +78,7 @@
     function submitForm() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
+        const msg = document.getElementById('message');
 
         if (isSignup) {
             const name = document.getElementById('name').value;
@@ -88,8 +91,14 @@
             })
             .then(res => res.text())
             .then(text => {
-                document.getElementById('message').innerText = text;
-                if (text.includes('successful')) toggleForm();
+                if (text.includes('successful')) {
+                    msg.className = 'success';
+                    msg.innerText = text + ' Please login now.';
+                    toggleForm();
+                } else {
+                    msg.className = 'error';
+                    msg.innerText = text;
+                }
             });
         } else {
             fetch('/api/login', {
@@ -99,7 +108,30 @@
             })
             .then(res => res.text())
             .then(text => {
-                document.getElementById('message').innerText = text;
+                if (text.startsWith('SUCCESS:')) {
+                    const parts = text.split(':');
+                    const userId = parts[1];
+                    const role = parts[2];
+                    const name = parts[3];
+
+                    localStorage.setItem('userId', userId);
+                    localStorage.setItem('role', role);
+                    localStorage.setItem('name', name);
+
+                    msg.className = 'success';
+                    msg.innerText = 'Login successful! Redirecting...';
+
+                    setTimeout(() => {
+                        if (role === 'TEACHER') {
+                            window.location.href = '/teacher.html';
+                        } else {
+                            window.location.href = '/student.html';
+                        }
+                    }, 800);
+                } else {
+                    msg.className = 'error';
+                    msg.innerText = 'Login failed. Check your email and password.';
+                }
             });
         }
     }

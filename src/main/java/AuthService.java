@@ -6,7 +6,6 @@ import java.security.NoSuchAlgorithmException;
 
 public class AuthService {
 
-    // Turns a plain password into a scrambled hash before storing it
     public static String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -21,7 +20,6 @@ public class AuthService {
         }
     }
 
-    // Creates a new user (Teacher or Student)
     public static boolean signup(String name, String email, String password, String role) {
         String hashedPassword = hashPassword(password);
         String sql = "INSERT INTO Users (name, email, password_hash, role) VALUES (?, ?, ?, ?)";
@@ -35,18 +33,16 @@ public class AuthService {
             stmt.setString(4, role);
 
             stmt.executeUpdate();
-            System.out.println("Signup successful!");
             return true;
 
         } catch (Exception e) {
-            System.out.println("Signup failed!");
             e.printStackTrace();
             return false;
         }
     }
 
-    // Checks if email + password match a user in the database
-    public static boolean login(String email, String password) {
+    // Now returns "id:role:name" on success, or null on failure
+    public static String loginAndGetInfo(String email, String password) {
         String hashedPassword = hashPassword(password);
         String sql = "SELECT * FROM Users WHERE email = ? AND password_hash = ?";
 
@@ -58,24 +54,21 @@ public class AuthService {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                System.out.println("Login successful! Welcome, " + rs.getString("name"));
-                System.out.println("Role: " + rs.getString("role"));
-                return true;
+                int id = rs.getInt("id");
+                String role = rs.getString("role");
+                String name = rs.getString("name");
+                return id + ":" + role + ":" + name;
             } else {
-                System.out.println("Invalid email or password.");
-                return false;
+                return null;
             }
 
         } catch (Exception e) {
-            System.out.println("Login failed!");
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
-    // Quick test — run this file directly to try signup + login
-    public static void main(String[] args) {
-        signup("Harshita Jain", "harshita@test.com", "mypassword123", "TEACHER");
-        login("harshita@test.com", "mypassword123");
+    public static boolean login(String email, String password) {
+        return loginAndGetInfo(email, password) != null;
     }
 }

@@ -21,8 +21,12 @@ public class App {
     static void handleLogin(Context ctx) {
         String email = ctx.formParam("email");
         String password = ctx.formParam("password");
-        boolean success = AuthService.login(email, password);
-        ctx.result(success ? "Login successful" : "Login failed");
+        String info = AuthService.loginAndGetInfo(email, password);
+        if (info != null) {
+            ctx.result("SUCCESS:" + info);
+        } else {
+            ctx.result("FAILED");
+        }
     }
 
     static void handleSignup(Context ctx) {
