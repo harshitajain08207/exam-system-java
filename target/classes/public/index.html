@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Secure Online Exam System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            animation: float 6s ease-in-out infinite;
+        }
+        .shape1 { width: 180px; height: 180px; top: 8%; left: 10%; animation-delay: 0s; }
+        .shape2 { width: 120px; height: 120px; bottom: 12%; right: 12%; animation-delay: 1.5s; }
+        .shape3 { width: 90px; height: 90px; top: 65%; left: 8%; animation-delay: 3s; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-22px); }
+        }
+        .card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            padding: 60px 50px;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.7s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .icon {
+            width: 72px; height: 72px;
+            background: white;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            font-weight: 800;
+            color: #764ba2;
+            margin: 0 auto 28px;
+            transition: transform 0.3s;
+        }
+        .icon:hover { transform: rotate(-6deg) scale(1.05); }
+        h1 {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            line-height: 1.25;
+        }
+        p {
+            font-size: 14px;
+            opacity: 0.85;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+        .features {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .feature {
+            font-size: 12px;
+            font-weight: 500;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: background 0.2s, transform 0.2s;
+            cursor: default;
+        }
+        .feature:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        .btn {
+            display: inline-block;
+            background: white;
+            color: #764ba2;
+            padding: 15px 48px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 16px 36px rgba(0,0,0,0.3);
+        }
+        .btn:active { transform: translateY(-1px) scale(0.99); }
+        .footer-note {
+            margin-top: 24px;
+            font-size: 11px;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="shape shape1"></div>
+    <div class="shape shape2"></div>
+    <div class="shape shape3"></div>
+
+    <div class="card">
+        <div class="icon">SE</div>
+        <h1>Secure Online Exam System</h1>
+        <p>Create, take, and grade exams online with built-in integrity monitoring that detects suspicious activity during tests.</p>
+
+        <div class="features">
+            <div class="feature">Role-based access</div>
+            <div class="feature">Auto-grading</div>
+            <div class="feature">Integrity monitoring</div>
+        </div>
+
+        <a href="/login.html" class="btn">Get Started</a>
+        <div class="footer-note">Built with Java, MySQL &amp; Javalin</div>
+    </div>
+
+</body>
+</html>

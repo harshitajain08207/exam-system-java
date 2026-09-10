@@ -6,11 +6,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.security.SecureRandom;
 
 public class ExamService {
 
-    public static int createExam(String title, int durationMinutes, int teacherId) {
-        String sql = "INSERT INTO Exams (title, duration_minutes, created_by) VALUES (?, ?, ?)";
+    private static final String CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    private static final SecureRandom RANDOM = new SecureRandom();
+
+    private static String generateExamCode() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 6; i++) {
+            sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
+        }
+        return sb.toString();
+    }
+
+    // Returns "examId:examCode"
+    public static String createExam(String title, int durationMinutes, int teacherId) {
+        String examCode = generateExamCode();
+        String sql = "INSERT INTO Exams (title, duration_minutes, created_by, exam_code) VALUES (?, ?, ?, ?)";
         int examId = -1;
 
         try (Connection conn = DBConnection.getConnection();
@@ -19,6 +33,7 @@ public class ExamService {
             stmt.setString(1, title);
             stmt.setInt(2, durationMinutes);
             stmt.setInt(3, teacherId);
+            stmt.setString(4, examCode);
             stmt.executeUpdate();
 
             ResultSet keys = stmt.getGeneratedKeys();
@@ -28,8 +43,25 @@ public class ExamService {
 
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return examId;
+        return examId + ":" + examCode;
+    }
+
+    public static int getExamIdByCode(String examCode) {
+        String sql = "SELECT id FROM Exams WHERE exam_code = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, examCode.toUpperCase());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public static boolean addQuestion(int examId, String questionText, String optionA, String optionB,

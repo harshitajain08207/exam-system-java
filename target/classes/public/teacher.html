@@ -6,107 +6,41 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f4f5fa;
-            margin: 0;
-            padding: 30px 20px;
-        }
+        body { font-family: 'Poppins', sans-serif; background: #f4f5fa; margin: 0; padding: 30px 20px; }
         .container { max-width: 640px; margin: 0 auto; }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .header-left { display: flex; align-items: center; gap: 12px; }
-        .header-icon {
-            width: 44px; height: 44px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: white; font-weight: 600;
-        }
+        .header-icon { width: 44px; height: 44px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: 600; }
         h2 { color: #1a1a2e; margin: 0; font-weight: 600; font-size: 20px; }
         .subtitle { color: #888; font-size: 12px; margin-top: 2px; }
-        .card {
-            background: white;
-            padding: 28px;
-            border-radius: 14px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            margin-bottom: 20px;
-        }
-        .card h3 {
-            margin: 0 0 18px;
-            color: #1a1a2e;
-            font-size: 16px;
-            font-weight: 600;
-        }
-        input, textarea, select, button {
-            width: 100%;
-            padding: 12px 14px;
-            margin: 6px 0;
-            border-radius: 8px;
-            border: 1.5px solid #e5e5e5;
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-        }
+        .card { background: white; padding: 28px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 20px; }
+        .card h3 { margin: 0 0 18px; color: #1a1a2e; font-size: 16px; font-weight: 600; }
+        input, textarea, select, button { width: 100%; padding: 12px 14px; margin: 6px 0; border-radius: 8px; border: 1.5px solid #e5e5e5; font-family: 'Poppins', sans-serif; font-size: 14px; }
         input:focus, textarea:focus, select:focus { outline: none; border-color: #764ba2; }
-        button {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
-            padding: 13px;
-        }
+        button { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; cursor: pointer; font-weight: 600; margin-top: 10px; padding: 13px; }
         button:hover { opacity: 0.9; }
-        .logout {
-            background: white;
-            color: #e53e3e;
-            border: 1.5px solid #fed7d7;
-            width: auto;
-            padding: 9px 18px;
-            font-size: 13px;
-            margin: 0;
-        }
+        .logout { background: white; color: #e53e3e; border: 1.5px solid #fed7d7; width: auto; padding: 9px 18px; font-size: 13px; margin: 0; }
         .logout:hover { background: #fff5f5; opacity: 1; }
         #examMsg, #questionMsg { text-align: center; margin-top: 10px; font-weight: 500; font-size: 13px; }
         .success { color: #38a169; }
         .error { color: #e53e3e; }
         .options-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         #questionSection { display: none; }
-        .exam-id-badge {
-            background: #f0e9ff;
-            color: #764ba2;
-            padding: 10px 14px;
-            border-radius: 8px;
+        .code-display {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 16px;
+            border-radius: 10px;
             text-align: center;
             margin-bottom: 14px;
-            font-weight: 500;
-            font-size: 13px;
         }
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
-        }
+        .code-label { font-size: 11px; opacity: 0.85; margin-bottom: 4px; }
+        .code-value { font-size: 26px; font-weight: 700; letter-spacing: 4px; }
+        .result-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
         .result-row:last-child { border-bottom: none; }
         .result-name { font-weight: 500; color: #1a1a2e; }
         .result-score { color: #38a169; font-weight: 600; }
-        .flag-badge {
-            background: #fff5f5;
-            color: #e53e3e;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 500;
-            margin-left: 8px;
-        }
+        .flag-badge { background: #fff5f5; color: #e53e3e; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -133,7 +67,10 @@
 
     <div class="card" id="questionSection">
         <h3>Add Question</h3>
-        <div class="exam-id-badge" id="currentExamBadge"></div>
+        <div class="code-display">
+            <div class="code-label">Share this code with students</div>
+            <div class="code-value" id="currentExamCode"></div>
+        </div>
         <textarea id="questionText" placeholder="Question text" rows="2"></textarea>
         <div class="options-row">
             <input type="text" id="optionA" placeholder="Option A">
@@ -153,7 +90,7 @@
 
     <div class="card">
         <h3>View Exam Results</h3>
-        <input type="number" id="resultsExamId" placeholder="Enter Exam ID">
+        <input type="number" id="resultsExamId" placeholder="Enter numeric Exam ID (shown in server log)">
         <button onclick="loadResults()">Load Results</button>
         <div id="resultsContainer"></div>
     </div>
@@ -193,12 +130,15 @@
             body: `title=${encodeURIComponent(title)}&duration=${duration}&teacherId=${teacherId}`
         })
         .then(res => res.text())
-        .then(examId => {
-            currentExamId = examId;
+        .then(result => {
+            const parts = result.split(':');
+            currentExamId = parts[0];
+            const examCode = parts[1];
+
             msg.className = 'success';
-            msg.innerText = 'Exam created! ID: ' + examId;
+            msg.innerText = 'Exam created! (ID: ' + currentExamId + ')';
             document.getElementById('questionSection').style.display = 'block';
-            document.getElementById('currentExamBadge').innerText = 'Adding questions to: ' + title + ' (Exam ID: ' + examId + ')';
+            document.getElementById('currentExamCode').innerText = examCode;
         });
     }
 
@@ -248,7 +188,6 @@
                     container.innerHTML = '<p style="text-align:center; color:#888; font-size:13px;">No submissions yet for this exam.</p>';
                     return;
                 }
-
                 container.innerHTML = results.map(r => `
                     <div class="result-row">
                         <span class="result-name">${r.studentName}</span>

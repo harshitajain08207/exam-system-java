@@ -1,4 +1,4 @@
-import io.javalin.Javalin;
+﻿import io.javalin.Javalin;
 import io.javalin.http.Context;
 
 public class App {
@@ -6,13 +6,13 @@ public class App {
     public static void main(String[] args) {
         Javalin app = Javalin.create(config -> {
             config.staticFiles.add("/public");
-        }).start(7000);
+        }).start(Integer.parseInt(System.getenv().getOrDefault("PORT", "7000")));
 
         app.post("/api/login", App::handleLogin);
         app.post("/api/signup", App::handleSignup);
         app.post("/api/createExam", App::handleCreateExam);
         app.post("/api/addQuestion", App::handleAddQuestion);
-        app.get("/api/viewQuestions/{examId}", App::handleViewQuestions);
+        app.get("/api/viewQuestions/{examCode}", App::handleViewQuestions);
         app.post("/api/submitExam", App::handleSubmitExam);
         app.get("/api/getResults/{examId}", App::handleGetResults);
 
@@ -43,8 +43,8 @@ public class App {
         String title = ctx.formParam("title");
         int duration = Integer.parseInt(ctx.formParam("duration"));
         int teacherId = Integer.parseInt(ctx.formParam("teacherId"));
-        int examId = ExamService.createExam(title, duration, teacherId);
-        ctx.result(String.valueOf(examId));
+        String result = ExamService.createExam(title, duration, teacherId);
+        ctx.result(result != null ? result : "ERROR");
     }
 
     static void handleAddQuestion(Context ctx) {
@@ -60,13 +60,20 @@ public class App {
     }
 
     static void handleViewQuestions(Context ctx) {
-        int examId = Integer.parseInt(ctx.pathParam("examId"));
+        String examCode = ctx.pathParam("examCode");
+        int examId = ExamService.getExamIdByCode(examCode);
+        if (examId == -1) {
+            ctx.status(404);
+            ctx.json(new java.util.ArrayList<>());
+            return;
+        }
         ctx.json(StudentService.getQuestionsForExam(examId));
     }
 
     static void handleSubmitExam(Context ctx) {
         int userId = Integer.parseInt(ctx.formParam("userId"));
-        int examId = Integer.parseInt(ctx.formParam("examId"));
+        String examCode = ctx.formParam("examCode");
+        int examId = ExamService.getExamIdByCode(examCode);
         int tabSwitchCount = Integer.parseInt(ctx.formParam("tabSwitchCount"));
         java.util.Map<Integer, String> answers = new java.util.HashMap<>();
         String answersRaw = ctx.formParam("answers");
@@ -86,3 +93,4 @@ public class App {
         ctx.json(ExamService.getResultsForExam(examId));
     }
 }
+
