@@ -1,4 +1,4 @@
-﻿import io.javalin.Javalin;
+import io.javalin.Javalin;
 import io.javalin.http.Context;
 
 public class App {
@@ -16,7 +16,7 @@ public class App {
         app.post("/api/submitExam", App::handleSubmitExam);
         app.get("/api/getResults/{examId}", App::handleGetResults);
 
-        System.out.println("Server running at http://localhost:7000");
+        System.out.println("Server running");
     }
 
     static void handleLogin(Context ctx) {
@@ -93,4 +93,3 @@ public class App {
         ctx.json(ExamService.getResultsForExam(examId));
     }
 }
-

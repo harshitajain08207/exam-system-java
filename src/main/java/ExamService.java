@@ -21,7 +21,6 @@ public class ExamService {
         return sb.toString();
     }
 
-    // Returns "examId:examCode"
     public static String createExam(String title, int durationMinutes, int teacherId) {
         String examCode = generateExamCode();
         String sql = "INSERT INTO Exams (title, duration_minutes, created_by, exam_code) VALUES (?, ?, ?, ?)";

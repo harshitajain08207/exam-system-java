@@ -41,7 +41,6 @@ public class AuthService {
         }
     }
 
-    // Now returns "id:role:name" on success, or null on failure
     public static String loginAndGetInfo(String email, String password) {
         String hashedPassword = hashPassword(password);
         String sql = "SELECT * FROM Users WHERE email = ? AND password_hash = ?";

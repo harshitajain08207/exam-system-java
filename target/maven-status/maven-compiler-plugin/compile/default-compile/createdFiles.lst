@@ -1,4 +1,5 @@
 AuthService.class
+App.class
 ExamService.class
 StudentService.class
 DBConnection.class
